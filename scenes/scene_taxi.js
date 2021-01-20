@@ -4,6 +4,8 @@ import Union from "../src/ai/steerings/union"
 import Group from "../src/characters/group";
 import auroraSpriteSheet from '../assets/sprites/characters/aurora.png'
 import playerCar from '../assets/sprites/cars/playerCar.png';
+import npcCar from '../assets/sprites/cars/npcCar.png';
+import Vector from "../src/accessoryClasses/vector";
 import punkSpriteSheet from '../assets/sprites/characters/punk.png'
 import blueSpriteSheet from '../assets/sprites/characters/blue.png'
 import yellowSpriteSheet from '../assets/sprites/characters/yellow.png'
@@ -58,7 +60,9 @@ let scene_taxi = new Phaser.Class({
         //this.load.spritesheet('aurora', auroraSpriteSheet, this.characterFrameConfig);
         //this.load.spritesheet('aurora', small_car, this.small_car);
         this.load.image('playerCar', playerCar);
+        this.load.image('npcCar', npcCar);                
         this.load.spritesheet("streetTileSet", streetTileSetSheet, this.streetTileSetFrameConfig);
+
         this.load.spritesheet('blue', blueSpriteSheet, this.characterFrameConfig);
         this.load.spritesheet('green', greenSpriteSheet, this.characterFrameConfig);
         this.load.spritesheet('yellow', yellowSpriteSheet, this.characterFrameConfig);
@@ -76,17 +80,39 @@ let scene_taxi = new Phaser.Class({
         //this.effectsFactory.loadAnimations();
 
         let segments = createRoadMapSegments(this);
-        //console.log(segments);
+        console.log(segments);
         let roomsArray = segments.roomRectangles;
         let roadMap = fillRoadMap(roomsArray);
-        //console.log(roadMap);
+        console.log(roadMap);
         let sectorMap = createSectorMapBasedOn(roomsArray);
-        //console.log(sectorMap);
+        console.log(sectorMap);
         let tilemapArray = fillTilemapArray(roadMap);
         //console.log(tilemapArray);
         let sceneLayers = createSceneLayers(this);       
         settingWorld(this, sceneLayers);
         putTilesOnLayers(sceneLayers, tilemapArray);
+
+        this.npcCars = [];
+        let roomNumber = 1;
+        while (roomsArray[roomNumber].size_y < 4) {
+            roomNumber++;
+        }
+
+        let sectorIX = roomsArray[roomNumber].corner_x;
+        let sectorIY = roomsArray[roomNumber].corner_y + roomsArray[roomNumber].size_y / 2;        
+        let sector = sectorMap[sectorIX][sectorIY];        
+        let npcX = sector.center.x;
+        let npcY = sector.center.y - sectorTileSize * tileSize / 2;
+        //Подключит класс Vector
+        let unitDirectionVector = new Vector(0, 1); 
+        let npcCar = this.characterFactory.buildCharacter("npcCar", npcX, npcY, 
+            { 
+                unitDirectionVector : unitDirectionVector,
+                targetSector : sector,
+                sectorMap : sectorMap
+             });       
+        this.npcCars.push(npcCar);
+        this.gameObjects.push(npcCar);
 
         /*let randomNumber = rand(0, roomsArray.length - 1);   
         let playerCarX = (rand(roomsArray[randomNumber].corner_x + 1, roomsArray[randomNumber].corner_x - 1 + roomsArray[randomNumber].size_x) - 0.5) * this.tile_size;

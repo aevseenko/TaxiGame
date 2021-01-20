@@ -2,6 +2,7 @@ import {StateTableRow, StateTable} from '../ai/behaviour/state';
 import Slime from "./slime";
 import Player from "./player";
 import PlayerCar from "./playerCar";
+import NPCCar from "./npcCar";
 import cyberpunkConfigJson from "../../assets/animations/cyberpunk.json";
 import slimeConfigJson from "../../assets/animations/slime.json";
 import mineConfigJson from '../../assets/animations/mine.json';
@@ -47,46 +48,24 @@ export default class CharacterFactory {
     }
 
     buildCharacter(spriteSheetName, x, y, params = {}) {
-
-        console.log(spriteSheetName);
-        console.log(x);
-        console.log(y);
-        console.log(params);
-
         switch (spriteSheetName) {
-            /*case 'green':
-            case 'punk':
-            //case 'aurora'*/
             case 'playerCar':
-            /*case 'blue':
-            case 'yellow':*/
-                if (params.player)
-                    return this.buildPlayerCharacter(spriteSheetName, x, y, params);
-                /*else {
-                    if (params.Steering)
-                        return this.buildNPCCharacter(spriteSheetName, x, y, params);
-                    else
-                        return this.buildCyberpunkCharacter(spriteSheetName, x, y, params);
-                }*/
-            /*case "slime":
-                return this.buildSlime(x, y, params);
-            case "mine":
-                return this.buildMine(x, y, params);*/
+                return this.buildPlayerCharacter(spriteSheetName, x, y, params);
+            case "npcCar" :
+                return this.buildNPCCharacter(spriteSheetName, x, y, params);
         }
     }
 
 
-    buildNPCCharacter(spriteSheetName, x, y, params) {
-        let character = new NPC(this.scene, x, y, spriteSheetName, 2, params.Steering);
-        character.animationSets = this.animationLibrary.get(spriteSheetName);
+    buildNPCCharacter(spriteSheetName, x, y, parameters) {    
+        let character = new NPCCar(this.scene, x, y, spriteSheetName, 0, parameters);
+        character.maxSpeed = 300;   
+        character.minSpeed = 0;          
+        //character.animationSets = this.animationLibrary.get(spriteSheetName);
         return character;
     }
 
-    buildPlayerCharacter(spriteSheetName, x, y, params = {}) {
-        console.log(spriteSheetName);
-        console.log(x);
-        console.log(y);
-        console.log(params);
+    buildPlayerCharacter(spriteSheetName, x, y, params = {}) {        
         let unitDirectionVector = new Vector(0, -1);
         let character = new PlayerCar(this.scene, x, y, spriteSheetName, 0, params, unitDirectionVector);        
         //let character = new Player(this.scene, x, y, spriteSheetName, 2, params);

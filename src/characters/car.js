@@ -1,38 +1,31 @@
-//import { PhaserMath } from "phaser";
-import Mine from "./mine";
+//import Mine from "./mine";
 import Vector from "../accessoryClasses/vector.js"
 
-export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
-    constructor(scene, x, y, name, frame, params, unitDirectionVector) {
+export default class Car extends Phaser.Physics.Arcade.Sprite{
+    constructor(scene, x, y, name, frame, unitDirectionVector) {
         super(scene, x, y, name, frame);
         scene.physics.world.enable(this);
         scene.add.existing(this);  
 
         //this.setScale(0.25);          
         this.setCarHalfSizes();
-
-        this.currentSpeed = 0; 
-        this.acceleration = 100;
-
-        this.leftVector = new Vector(-1, 0);
+        /*this.leftVector = new Vector(-1, 0);
         this.upVector = new Vector(0, -1);
         this.rightVector = new Vector(1, 0);
-        this.downVector = new Vector(0, 1);        
+        this.downVector = new Vector(0, 1);        */
         
         this.unitDirectionVector = unitDirectionVector;   
         this.angle = this.unitDirectionVector.angleInDegrees();      
 
-        this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        /*this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         this.buttonRight = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        this.buttonDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);                
+        this.buttonDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);                */
 
-        this.gearUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);                
+        /*this.gearUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);                
         this.gearDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);    
         this.gearUpIsReadyForSwitch = true;
-        this.gearDownIsReadyForSwitch = true;
-
-        this.abilities  = params.abilities || [];                              
+        this.gearDownIsReadyForSwitch = true;*/                       
     }
 
     setCarHalfSizes() {
@@ -40,6 +33,80 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         let size2 = this.displayHeight;
         this.carHalfLength = Math.max(size1, size2) / 2;
         this.carHalfWidth = Math.min(size1, size2) / 2;   
+    }
+
+    updateCarParameters(speedValue, directionVector) {
+        const body = this.body;             
+        this.currentSpeed = speedValue;    
+        let cursorResultVector = directionVector;                
+        let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);      
+        let rotationDirection = -1;
+        if (this.currentSpeed < 0) {
+            rotationDirection = 1;
+        }
+        this.unitDirectionVector.rotateOnAngleInDegrees(rotationDirection * crossZCoordinate * 5);
+        this.angle = this.unitDirectionVector.angleInDegrees();            
+        body.velocity.x = this.currentSpeed * this.unitDirectionVector.x;   
+        body.velocity.y = this.currentSpeed * this.unitDirectionVector.y;
+
+        this.updateBodyBoundingSizes();
+    }
+
+    updateBodyBoundingSizes() {
+        let vd = this.unitDirectionVector.copy();
+        vd.multiply(this.carHalfLength);  
+        let minus_vd = vd.copy();
+        minus_vd.multiply(-1);
+        
+        let vn = this.unitDirectionVector.getNormalVector();
+        vn.multiply(this.carHalfWidth);        
+        let minus_vn = vn.copy();
+        minus_vn.multiply(-1);
+
+        
+        let c1 = vd.copy();
+        c1.add(vn);
+        
+        let c2 = vd.copy();
+        c2.add(minus_vn);
+
+        let c3 = minus_vd.copy();
+        c3.add(vn);
+
+        let c4 = minus_vd.copy();
+        c4.add(minus_vn);
+
+        let sizes = this.getBoundingBoxWidthAndHeight([c1, c2, c3, c4]);        
+        this.body.setSize(sizes.width / this.scale, sizes.height / this.scale);
+    }
+
+    getBoundingBoxWidthAndHeight(vectorArray) {
+        let minX = vectorArray[0].x;
+        let maxX = vectorArray[0].x;
+
+        let minY = vectorArray[0].y;
+        let maxY = vectorArray[0].y;
+
+        for (let i = 1; i < vectorArray.length; i++) {
+            if (vectorArray[i].x < minX) {
+                minX = vectorArray[i].x;
+            }
+
+            if (vectorArray[i].x > maxX) {
+                maxX = vectorArray[i].x;
+            }
+
+            if (vectorArray[i].y < minY) {
+                minY = vectorArray[i].y;
+            }
+
+            if (vectorArray[i].y > maxY) {
+                maxY = vectorArray[i].y;
+            }
+        }
+
+        return {width : Math.abs(minX) + Math.abs(maxX),
+                height : Math.abs(minY) + Math.abs(maxY)};
     }
 
     update() {        
@@ -104,62 +171,7 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         return result;
     }
 
-    updateBodyBoundingSizes() {
-        let vd = this.unitDirectionVector.copy();
-        vd.multiply(this.carHalfLength);  
-        let minus_vd = vd.copy();
-        minus_vd.multiply(-1);
-        
-        let vn = this.unitDirectionVector.getNormalVector();
-        vn.multiply(this.carHalfWidth);        
-        let minus_vn = vn.copy();
-        minus_vn.multiply(-1);
-
-        
-        let c1 = vd.copy();
-        c1.add(vn);
-        
-        let c2 = vd.copy();
-        c2.add(minus_vn);
-
-        let c3 = minus_vd.copy();
-        c3.add(vn);
-
-        let c4 = minus_vd.copy();
-        c4.add(minus_vn);
-
-        let sizes = this.getBoundingBoxWidthAndHeight([c1, c2, c3, c4]);        
-        this.body.setSize(sizes.width / this.scale, sizes.height / this.scale);
-    }
-
-    getBoundingBoxWidthAndHeight(vectorArray) {
-        let minX = vectorArray[0].x;
-        let maxX = vectorArray[0].x;
-
-        let minY = vectorArray[0].y;
-        let maxY = vectorArray[0].y;
-
-        for (let i = 1; i < vectorArray.length; i++) {
-            if (vectorArray[i].x < minX) {
-                minX = vectorArray[i].x;
-            }
-
-            if (vectorArray[i].x > maxX) {
-                maxX = vectorArray[i].x;
-            }
-
-            if (vectorArray[i].y < minY) {
-                minY = vectorArray[i].y;
-            }
-
-            if (vectorArray[i].y > maxY) {
-                maxY = vectorArray[i].y;
-            }
-        }
-
-        return {width : Math.abs(minX) + Math.abs(maxX),
-                height : Math.abs(minY) + Math.abs(maxY)};
-    }
+    
     updateSpeed() {       
         let newSpeed = this.currentSpeed;        
         if (this.gearUpIsReadyForSwitch && this.gearUp.isDown && this.currentSpeed < this.maxSpeed) {

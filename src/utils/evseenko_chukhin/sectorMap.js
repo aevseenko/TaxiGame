@@ -22,36 +22,35 @@ function createArray() {
 }
 
 function fill(sectorMap, roomsArray) {
-    for (let room of roomsArray) {
-
-        let topPartY = room.corner_y;
-        let bottomPartY = room.corner_y + room.size_y - 1;
-        let leftPartX = room.corner_x;
-        let rightPartX = room.corner_x + room.size_x - 1;
-        for (let x = room.corner_x; x < rightPartX; x++) {   
+    for (let room of roomsArray) {        
+        for (let dx = 0; dx < room.size_x - 1; dx++) {   
 
             // Нижняя часть                     
-            let bottomPartX = x;            
+            let bottomPartX = room.corner_x + dx;            
+            let bottomPartY = room.corner_y + room.size_y - 1;
             sectorMap[bottomPartX][bottomPartY] = new Sector(bottomPartX, bottomPartY);
-            sectorMap[bottomPartX][bottomPartY].directions.right = true;
+            sectorMap[bottomPartX][bottomPartY].directions.right = true;            
 
             //Верхняя часть
-            let topPartX = rightPartX - x;
+            let topPartX = bottomPartX + 1;            
+            let topPartY = room.corner_y;
             sectorMap[topPartX][topPartY] = new Sector(topPartX, topPartY);
-            sectorMap[topPartX][topPartY].directions.left = true;           
+            sectorMap[topPartX][topPartY].directions.left = true; 
         }
         
-        for (let y = room.corner_y; y < bottomPartY; y++) {            
+        for (let dy = 0; dy < room.size_y - 1; dy++) {   
 
             //Левая часть                        
-            let leftPartY = y;
+            let leftPartX = room.corner_x;
+            let leftPartY = room.corner_y + dy;
             sectorMap[leftPartX][leftPartY] = new Sector(leftPartX, leftPartY);
             sectorMap[leftPartX][leftPartY].directions.down = true;
 
             //Правая часть
-            let rightPartY = bottomPartY - y;            
+            let rightPartX = room.corner_x + room.size_x - 1;            
+            let rightPartY = leftPartY + 1;
             sectorMap[rightPartX][rightPartY] = new Sector(rightPartX, rightPartY);
-            sectorMap[rightPartX][rightPartY].directions.up = true;    
-        }
+            sectorMap[rightPartX][rightPartY].directions.up = true;   
+        }        
     }
 }
