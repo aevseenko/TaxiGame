@@ -1,0 +1,88 @@
+{ "columns":9,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"",
+         "target":"."
+        }
+    },
+ "image":"asphalt.png",
+ "imageheight":300,
+ "imagewidth":300,
+ "margin":0,
+ "name":"newStreetTileSet",
+ "spacing":0,
+ "terrains":[
+        {
+         "name":"asphalt",
+         "tile":10
+        }, 
+        {
+         "name":"grass",
+         "tile":2
+        }, 
+        {
+         "name":"roof",
+         "tile":4
+        }],
+ "tilecount":81,
+ "tiledversion":"1.4.3",
+ "tileheight":32,
+ "tiles":[
+        {
+         "id":0,
+         "terrain":[2, 2, 2, 2],
+         "type":"asphalt"
+        }, 
+        {
+         "id":1,
+         "terrain":[2, 2, 2, 2],
+         "type":"asphalt"
+        }, 
+        {
+         "id":2,
+         "terrain":[1, 1, 1, 1],
+         "type":"grass"
+        }, 
+        {
+         "id":3,
+         "terrain":[1, 1, 1, 1]
+        }, 
+        {
+         "id":4,
+         "terrain":[-1, -1, -1, 2],
+         "type":"roof"
+        }, 
+        {
+         "id":5,
+         "terrain":[-1, -1, 2, -1]
+        }, 
+        {
+         "id":9,
+         "terrain":[2, 2, 2, 2]
+        }, 
+        {
+         "id":10,
+         "terrain":[2, 2, 2, 2]
+        }, 
+        {
+         "id":11,
+         "terrain":[1, 1, 1, 1]
+        }, 
+        {
+         "id":12,
+         "terrain":[1, 1, 1, 1]
+        }, 
+        {
+         "id":13,
+         "terrain":[-1, 2, -1, -1]
+        }, 
+        {
+         "id":14,
+         "terrain":[2, -1, -1, -1]
+        }],
+ "tilewidth":32,
+ "type":"tileset",
+ "version":1.4
+}

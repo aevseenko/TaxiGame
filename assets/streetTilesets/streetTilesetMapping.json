@@ -1,0 +1,22 @@
+{ "columns":9,
+ "editorsettings":
+    {
+     "export":
+        {
+         "format":"",
+         "target":"."
+        }
+    },
+ "image":"asphalt.png",
+ "imageheight":300,
+ "imagewidth":300,
+ "margin":0,
+ "name":"asphalt",
+ "spacing":0,
+ "tilecount":81,
+ "tiledversion":"1.4.3",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":1.4
+}
