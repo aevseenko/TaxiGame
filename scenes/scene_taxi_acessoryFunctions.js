@@ -1,5 +1,6 @@
-import { sectorTileSize, width, height } from "./scene_taxi";
+import { sectorTileSize, width, height, debugHallMapWillBeCreated } from "./scene_taxi";
 import { get_random_int as rand } from "../src/utils/evseenko_chukhin/accessory_functions";
+import CellularAutomataLevelBuilder from "../src/utils/automata_generator/level-builder";
 
 const TILE_MAPPING = {
     BLANK: 17,
@@ -15,13 +16,14 @@ const STREET_TILESET_MAPPING = {
     ASPHALT: [0, 1, 2, 3],
     GRASS : [4, 5, 6, 7],
     ROOF : [8, 9, 10, 11],
-    PEDASTRIAN_AREA : [12, 12, 12, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19]
+    PEDASTRIAN_AREA : [12, 12, 12, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19],
+    HALL : [20, 21]
 }
 
-const LEVEL_TO_STREET_TILESET ={
+/*const LEVEL_TO_STREET_TILESET ={
     0: STREET_TILESET_MAPPING.GRASS,
     1: STREET_TILESET_MAPPING.ASPHALT
-}
+}*/
 
 export function createSceneLayers(scene) {
     let tile_size = scene.tileSize; 
@@ -37,12 +39,18 @@ export function createSceneLayers(scene) {
     let roadsLayer  = scene.map.createBlankDynamicLayer("Roads", streetTileSet);
     let pedastrianAreaLayer = scene.map.createBlankDynamicLayer("Pedastrian Area", streetTileSet);
     let roofLayer  = scene.map.createBlankDynamicLayer("Roofs", streetTileSet);
-    return { 
+    let result = { 
         grassLayer : grassLayer, 
         roadsLayer : roadsLayer, 
         pedastrianAreaLayer : pedastrianAreaLayer, 
-        roofLayer : roofLayer
+        roofLayer : roofLayer        
     }
+    if (debugHallMapWillBeCreated) {
+        let hallLayer  = scene.map.createBlankDynamicLayer("Halls", streetTileSet);        
+        result.hallLayer = hallLayer;
+    }
+    
+    return result;
 }
 
 export function settingWorld(scene, sceneLayers)
@@ -61,7 +69,7 @@ export function settingWorld(scene, sceneLayers)
     outsideLayer.setCollisionBetween(1, 500);*/
 }
 
-export function putTilesOnLayers(sceneLayers, map_matrix) {
+export function putTilesOnLayers(sceneLayers, map_matrix, debugHallMap) {
     let randomTileNumer = 0;
         for (let x = 0; x < sectorTileSize * width; x++)
         {
@@ -99,6 +107,16 @@ export function putTilesOnLayers(sceneLayers, map_matrix) {
             }
         }
 
+        if (debugHallMapWillBeCreated) {
+            for (let x = 0; x < sectorTileSize * width; x++) {
+                for (let y = 0; y < sectorTileSize * height; y++) {
+                    if (debugHallMap[x][y] == 5) {
+                        sceneLayers.hallLayer.putTileAt(STREET_TILESET_MAPPING.HALL[0], x, y);
+                    }                
+                }
+            }
+        }
+        
         /*for (let x = 1; x < width - 1; x++)
         {
             for (let y = 1; y < height - 1; y++)
@@ -140,5 +158,5 @@ export function addDebugGraphicsFor(scene) {
             .graphics()
             .setAlpha(0.75)
             .setDepth(20);
-    });
+    });    
 }

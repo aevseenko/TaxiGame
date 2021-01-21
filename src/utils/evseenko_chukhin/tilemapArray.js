@@ -11,7 +11,7 @@ export function fillTilemapArray(roadMap) {
     return tilemapArray;
 }
 
-function extendTo(tilemapArray, roadMap) {      
+export function extendTo(tilemapArray, roadMap) {      
     for (let w = 0; w < width; w++) {        
         for (let h = 0; h < height; h++) {
             for (let i = sectorTileSize * w; i < sectorTileSize * (w + 1); i++) {                

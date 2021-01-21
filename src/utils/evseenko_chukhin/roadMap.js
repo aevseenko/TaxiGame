@@ -19,8 +19,8 @@ function addGrassTo(roadMap) {
     }    
 }
 
-function addRoomsTo(roadMap, roomsArray) {
-    for (let currentRectangle of roomsArray)
+function addRoomsTo(roadMap, rectangleArray) {
+    for (let currentRectangle of rectangleArray)
     {      
         let firstCornerX = currentRectangle.corner_x;
         let firstCornerY = currentRectangle.corner_y;

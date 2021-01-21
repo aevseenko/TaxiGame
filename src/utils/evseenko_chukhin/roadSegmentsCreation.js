@@ -1,7 +1,7 @@
 import Leaf from "./leaf";
 import { get_random_int as rand } from "./accessory_functions";
 import Rectangle from "./rectangle";
-
+import { hallSize } from "../../../scenes/scene_taxi";
 import { MAX_LEAF_SIZE, width, height } from "../../../scenes/scene_taxi";
 
 export function createRoadMapSegments(scene) {  
@@ -9,18 +9,24 @@ export function createRoadMapSegments(scene) {
     //Делим игровое поле на зоны 
     //(создаём дерево, листами которого являются данные об отдельной области, в каждую из которых будет помещаться комната)
     let root = new Leaf(2, 2, width - 4, height - 4); 
-    generateLeafs(root);  
+    let leafs = generateLeafs(root);  
 
     //Создаём комнаты в листах
     let roomsArray = [];
     root.createRooms(roomsArray);
 
     //Строим дороги
-    //create_halls(leafs, 2, rectangleArray);    
+    const hallSize = 2;          // !!! ДРУГИЕ РАЗМЕРЫ НЕ ПРОВЕРЯЛИСЬ !!! КРАТЕН 2 (обозначает ширину дороги в секторах)  
+    let hallsArray = [];
+    create_halls(hallsArray, leafs, hallSize);
 
-    return {
-        roomRectangles : roomsArray        
-    }    
+    let result = {
+        roomRectangles : roomsArray,
+        hallRectangles : hallsArray        
+    }
+
+    console.log(result);
+    return result;    
 }
 
 function generateLeafs(root) {
@@ -47,8 +53,71 @@ function generateLeafs(root) {
             }
         }
     }
+
+    return leafs;
 }
-function create_halls(leafs, hallSize, rectangleArray)
+
+function create_halls(hallsArray, leafs, hallSize) {
+    for (let current_leaf of leafs)
+    {
+        if (current_leaf.leftChild != undefined && current_leaf.rightChild != undefined)
+        {
+            let room1 = current_leaf.leftChild.get_room();
+            let room2 = current_leaf.rightChild.get_room();
+            let x1 = 2 * rand((room1.corner_x + hallSize) / 2, (room1.corner_x + room1.size_x) / 2);
+            let y1 = 2 * rand((room1.corner_y + hallSize) / 2, (room1.corner_y + room1.size_y) / 2);
+            let x2 = 2 * rand((room2.corner_x + hallSize) / 2, (room2.corner_x + room2.size_x) / 2);
+            let y2 = 2 * rand((room2.corner_y + hallSize) / 2, (room2.corner_y + room2.size_y) / 2);
+            let minX = Math.min(x1, x2) - hallSize;
+            let minY = Math.min(y1, y2) - hallSize;
+            let maxX = Math.max(x1, x2) - hallSize;
+            let maxY = Math.max(y1, y2) - hallSize;
+            let width = x1 - x2;
+            let height = y1 - y2;
+            let mainDiag = width * height >= 0;
+            let choise = Math.random() >= 0.5;
+
+            //TODO: Убрать 2
+            width = Math.abs(width) + hallSize;
+            height = Math.abs(height) + hallSize;
+            let horX, horY, vertX, vertY;
+            if (choise)
+            {
+                horX = minX;
+                horY = minY;
+            }
+            else
+            {
+                horX = minX;
+                horY = maxY;
+            }
+            if (choise && mainDiag || !choise && !mainDiag)
+            {
+                vertX = maxX;
+                vertY = minY;
+            }
+            else
+            {
+                vertX = minX;
+                vertY = minY;
+            }
+            
+            if (height > hallSize)
+            {
+                let rectangle = new Rectangle(vertX, vertY, hallSize, height);
+                hallsArray.push(rectangle);
+
+            }
+            if (width > hallSize)
+            {
+                let rectangle = new Rectangle(horX, horY, width, hallSize);
+                hallsArray.push(rectangle);
+            }
+        }
+    }
+}
+
+/*function create_halls(hallsArray, leafs)
 {
     for (let current_leaf of leafs)
     {
@@ -104,4 +173,4 @@ function create_halls(leafs, hallSize, rectangleArray)
             }
         }
     }
-}
+}*/

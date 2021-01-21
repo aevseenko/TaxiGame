@@ -20,9 +20,10 @@ import CellularAutomataMapGenerator from '../src/utils/automata_generator/map-ge
 import CellularAutomataLevelBuilder from '../src/utils/automata_generator/level-builder';
 import { TILES } from '../src/utils/automata_generator/tiles';
 import { fillRoadMap } from "../src/utils/evseenko_chukhin/roadMap";
-import { fillTilemapArray } from"../src/utils/evseenko_chukhin/tilemapArray";
+import { fillTilemapArray, extendTo } from"../src/utils/evseenko_chukhin/tilemapArray";
 import { createSectorMapBasedOn } from "../src/utils/evseenko_chukhin/sectorMap";
-import { get_random_int as rand } from "../src/utils/evseenko_chukhin/accessory_functions";
+import { get_random_int as rand, createBlank2DArray } from "../src/utils/evseenko_chukhin/accessory_functions";
+import { createDebugHallMap } from "../src/utils/evseenko_chukhin/debugHallMap";
 import {
         createSceneLayers, 
         settingWorld, 
@@ -34,11 +35,22 @@ import {
 
 export const sectorTileSize = 4;        // !!! КРАТЕН 2 (sectorSize - количество тайлов одного сектора по ширине и высоте)
 export const MAX_LEAF_SIZE = 20;           // !!! КРАТЕН 2 
+export const MIN_LEAF_SIZE = 10;    // !!! КРАТЕН 2
+export const MIN_ROOM_SIZE = 4;     // !!! КРАТЕН 2; меньше MIN_LEAF_SIZE на 4 (как минимум)
+export const width = 54;                  // !!! КРАТЕН 2; width = ширина игрового поля + 4
+export const height = 54;                 // !!! КРАТЕН 2; height = высота игрового поля + 4
+export const tileSize = 32;             //Размер тайла
+export const debugHallMapWillBeCreated = true;   //Создаётся или нет отладочная карта коридоров между комнатами (дорог)
+                                                                                           
+
+/*export const sectorTileSize = 4;        // !!! КРАТЕН 2 (sectorSize - количество тайлов одного сектора по ширине и высоте)
+export const MAX_LEAF_SIZE = 20;           // !!! КРАТЕН 2 
 export const MIN_LEAF_SIZE = 6;    // !!! КРАТЕН 2
 export const MIN_ROOM_SIZE = 2;     // !!! КРАТЕН 2; меньше MIN_LEAF_SIZE на 4 (как минимум)
 export const width = 54;                  // !!! КРАТЕН 2; width = ширина игрового поля + 4
 export const height = 54;                 // !!! КРАТЕН 2; height = высота игрового поля + 4
-export const tileSize = 32;             //Размер тайла
+export const tileSize = 32;             //Размер тайла*/
+
 
 let scene_taxi = new Phaser.Class({
 
@@ -86,11 +98,23 @@ let scene_taxi = new Phaser.Class({
         console.log(roadMap);
         let sectorMap = createSectorMapBasedOn(roomsArray);
         console.log(sectorMap);
+
+        let debugHallMap = null;
+        if (debugHallMapWillBeCreated) {
+            debugHallMap = createDebugHallMap(segments.hallRectangles);
+        }
+
+        //Удалить
+        /*let hallsMap = createBlank2DArray(width);
+        addHallsTo(hallsMap, segments.hallRectangles);
+        console.log(hallsMap);
+        let bigHallsMap = createBlank2DArray(width * sectorTileSize);        
+        extendTo(bigHallsMap, hallsMap);    */         
         let tilemapArray = fillTilemapArray(roadMap);
         //console.log(tilemapArray);
         let sceneLayers = createSceneLayers(this);       
         settingWorld(this, sceneLayers);
-        putTilesOnLayers(sceneLayers, tilemapArray);
+        putTilesOnLayers(sceneLayers, tilemapArray, debugHallMap);
 
         this.npcCars = [];
         let roomNumber = 1;
@@ -130,7 +154,7 @@ let scene_taxi = new Phaser.Class({
 
         setCameraParametersFor(this);        
 
-        addDebugGraphicsFor(this);
+        addDebugGraphicsFor(this);        
     },
 
     update: function () {

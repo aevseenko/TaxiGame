@@ -6,3 +6,27 @@ export function get_random_int(min, max)
 export function distanceBetweenPoints(x1, y1, x2, y2) {
     return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
+
+/*export function copy2DArray (originalArray) {
+    let result = new Array();
+    for (let x = 0; x < originalArray.length; x++) {
+
+    }
+}*/
+
+export function createBlank2DArray(width) {
+    let result = new Array();
+    for (let x = 0; x < width; x++) {
+        result[x] = new Array();
+    }
+
+    return result;
+}
+
+export function asignZeroToAllElements(array, width, height) {    
+    for (let w = 0; w < width; w++) {        
+        for (let h = 0; h < height; h++) {
+            array[w][h] = 0;
+        }
+    }    
+}

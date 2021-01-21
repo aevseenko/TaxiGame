@@ -1,31 +1,39 @@
-//import Mine from "./mine";
-import Vector from "../accessoryClasses/vector.js"
+//import { PhaserMath } from "phaser";
+import Mine from "./mine";
+import Vector from "../accessoryClasses/vector.js";
+import Car from "./car";
 
-export default class Car extends Phaser.Physics.Arcade.Sprite{
-    constructor(scene, x, y, name, frame, unitDirectionVector) {
+export default class PlayerCar extends Car{
+    constructor(scene, x, y, name, frame, params, unitDirectionVector) {
         super(scene, x, y, name, frame);
         scene.physics.world.enable(this);
         scene.add.existing(this);  
 
         //this.setScale(0.25);          
         this.setCarHalfSizes();
-        /*this.leftVector = new Vector(-1, 0);
+
+        this.currentSpeed = 0; 
+        this.acceleration = 100;
+
+        this.leftVector = new Vector(-1, 0);
         this.upVector = new Vector(0, -1);
         this.rightVector = new Vector(1, 0);
-        this.downVector = new Vector(0, 1);        */
+        this.downVector = new Vector(0, 1);        
         
         this.unitDirectionVector = unitDirectionVector;   
         this.angle = this.unitDirectionVector.angleInDegrees();      
 
-        /*this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         this.buttonRight = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        this.buttonDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);                */
+        this.buttonDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);                
 
-        /*this.gearUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);                
+        this.gearUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);                
         this.gearDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);    
         this.gearUpIsReadyForSwitch = true;
-        this.gearDownIsReadyForSwitch = true;*/                       
+        this.gearDownIsReadyForSwitch = true;
+
+        this.abilities  = params.abilities || [];                              
     }
 
     setCarHalfSizes() {
@@ -35,10 +43,10 @@ export default class Car extends Phaser.Physics.Arcade.Sprite{
         this.carHalfWidth = Math.min(size1, size2) / 2;   
     }
 
-    updateCarParameters(speedValue, directionVector) {
+    update() {        
         const body = this.body;             
-        this.currentSpeed = speedValue;    
-        let cursorResultVector = directionVector;                
+        this.currentSpeed = this.updateSpeed();    
+        let cursorResultVector = this.updateDirection();        
         let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);      
         let rotationDirection = -1;
         if (this.currentSpeed < 0) {
@@ -50,6 +58,51 @@ export default class Car extends Phaser.Physics.Arcade.Sprite{
         body.velocity.y = this.currentSpeed * this.unitDirectionVector.y;
 
         this.updateBodyBoundingSizes();
+        /*if (this.abilities.includes('mines'))
+        {
+            if (cursors.space.isDown && this.scene.time.now - this.lastMineTime > 1000) {
+                this.lastMineTime = this.scene.time.now;
+                this.scene.characterFactory.buildMine(this.body.x, this.body.y);
+            }
+        }*/
+        //this.body.setAcceleration()    
+
+        /*if (cursors.left.isDown) {            
+            body.velocity.x -= speed;
+        } else if (cursors.right.isDown) {
+            body.velocity.x += speed;
+        }
+
+        // Vertical movement
+        if (cursors.up.isDown) {
+            body.setVelocityY(-speed);
+        } else if (cursors.down.isDown) {
+            body.setVelocityY(speed);
+        }*/        
+        //this.updateAnimation();
+    };
+
+    updateDirection() {     
+        let result = new Vector(0, 0); 
+        if (this.currentSpeed != 0) {
+            if (this.buttonLeft.isDown) {
+                result.add(this.leftVector);
+            }        
+            
+            if (this.buttonUp.isDown) {
+                result.add(this.upVector);
+            }      
+    
+            if (this.buttonRight.isDown) {
+                result.add(this.rightVector);            
+            }        
+    
+            if (this.buttonDown.isDown) {
+                result.add(this.downVector);
+            }   
+        }
+        
+        return result;
     }
 
     updateBodyBoundingSizes() {
@@ -108,70 +161,6 @@ export default class Car extends Phaser.Physics.Arcade.Sprite{
         return {width : Math.abs(minX) + Math.abs(maxX),
                 height : Math.abs(minY) + Math.abs(maxY)};
     }
-
-    /*update() {        
-        const body = this.body;             
-        this.currentSpeed = this.updateSpeed();    
-        let cursorResultVector = this.updateDirection();        
-        let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);      
-        let rotationDirection = -1;
-        if (this.currentSpeed < 0) {
-            rotationDirection = 1;
-        }
-        this.unitDirectionVector.rotateOnAngleInDegrees(rotationDirection * crossZCoordinate * 5);
-        this.angle = this.unitDirectionVector.angleInDegrees();            
-        body.velocity.x = this.currentSpeed * this.unitDirectionVector.x;   
-        body.velocity.y = this.currentSpeed * this.unitDirectionVector.y;
-
-        this.updateBodyBoundingSizes();
-        /*if (this.abilities.includes('mines'))
-        {
-            if (cursors.space.isDown && this.scene.time.now - this.lastMineTime > 1000) {
-                this.lastMineTime = this.scene.time.now;
-                this.scene.characterFactory.buildMine(this.body.x, this.body.y);
-            }
-        }*/
-        //this.body.setAcceleration()    
-
-        /*if (cursors.left.isDown) {            
-            body.velocity.x -= speed;
-        } else if (cursors.right.isDown) {
-            body.velocity.x += speed;
-        }
-
-        // Vertical movement
-        if (cursors.up.isDown) {
-            body.setVelocityY(-speed);
-        } else if (cursors.down.isDown) {
-            body.setVelocityY(speed);
-        }
-        //this.updateAnimation();
-    };
-
-    updateDirection() {     
-        let result = new Vector(0, 0); 
-        if (this.currentSpeed != 0) {
-            if (this.buttonLeft.isDown) {
-                result.add(this.leftVector);
-            }        
-            
-            if (this.buttonUp.isDown) {
-                result.add(this.upVector);
-            }      
-    
-            if (this.buttonRight.isDown) {
-                result.add(this.rightVector);            
-            }        
-    
-            if (this.buttonDown.isDown) {
-                result.add(this.downVector);
-            }   
-        }
-        
-        return result;
-    }
-
-    
     updateSpeed() {       
         let newSpeed = this.currentSpeed;        
         if (this.gearUpIsReadyForSwitch && this.gearUp.isDown && this.currentSpeed < this.maxSpeed) {
@@ -187,7 +176,7 @@ export default class Car extends Phaser.Physics.Arcade.Sprite{
         this.gearDownIsReadyForSwitch = this.gearDown.isUp;
         
         return newSpeed;
-    }*/
+    }
 
     /*updateAnimation() {
         const animations = this.animationSets.get('Walk');
