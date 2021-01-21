@@ -7,13 +7,6 @@ export function distanceBetweenPoints(x1, y1, x2, y2) {
     return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
-/*export function copy2DArray (originalArray) {
-    let result = new Array();
-    for (let x = 0; x < originalArray.length; x++) {
-
-    }
-}*/
-
 export function createBlank2DArray(width) {
     let result = new Array();
     for (let x = 0; x < width; x++) {
@@ -29,4 +22,15 @@ export function asignZeroToAllElements(array, width, height) {
             array[w][h] = 0;
         }
     }    
+}
+
+export function copy2DArray(originalArray) {
+    let result = createBlank2DArray(originalArray.length);
+    for (let w = 0; w < originalArray.length; w++) {        
+        for (let h = 0; h < originalArray[0].length; h++) {
+            result[w][h] = originalArray[w][h];
+        }
+    }    
+
+    return result;
 }
