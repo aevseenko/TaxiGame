@@ -1,6 +1,5 @@
-import { sectorTileSize, width, height, debugHallMapWillBeCreated } from "./scene_taxi";
+import { sectorTileSize, width, height, debugHallMapWillBeCreated, debugArrowsWillBeDrawn } from "./scene_taxi";
 import { get_random_int as rand } from "../src/utils/evseenko_chukhin/accessory_functions";
-import CellularAutomataLevelBuilder from "../src/utils/automata_generator/level-builder";
 
 const TILE_MAPPING = {
     BLANK: 17,
@@ -19,6 +18,17 @@ const STREET_TILESET_MAPPING = {
     PEDASTRIAN_AREA : [12, 12, 12, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19],
     HALL : [20, 21]
 }
+
+const delta = 2;
+
+const ARROW_TILESET_MAPPING = {    
+    left : { dx : 0, dy : 0, tileNumbers : [0, 1, 2, 3] },
+    up : { dx : delta, dy : 0, tileNumbers : [4, 5, 6, 7] },
+    right : { dx : delta, dy : delta, tileNumbers : [8, 9, 10, 11] },
+    down : { dx : 0, dy : delta, tileNumbers : [12, 13, 14, 15] },
+}
+
+
 
 /*const LEVEL_TO_STREET_TILESET ={
     0: STREET_TILESET_MAPPING.GRASS,
@@ -45,11 +55,18 @@ export function createSceneLayers(scene) {
         pedastrianAreaLayer : pedastrianAreaLayer, 
         roofLayer : roofLayer        
     }
+
     if (debugHallMapWillBeCreated) {
         let hallLayer  = scene.map.createBlankDynamicLayer("Halls", streetTileSet);        
         result.hallLayer = hallLayer;
     }
-    
+
+    if (debugArrowsWillBeDrawn) {
+        let debugArrowsTileSet = scene.map.addTilesetImage("debugArrows", null, tile_size, tile_size);  
+        let debugArrowLayer  = scene.map.createBlankDynamicLayer("Debug arrows", debugArrowsTileSet);        
+        result.debugArrowLayer = debugArrowLayer;
+    }
+   
     return result;
 }
 
@@ -69,7 +86,7 @@ export function settingWorld(scene, sceneLayers)
     outsideLayer.setCollisionBetween(1, 500);*/
 }
 
-export function putTilesOnLayers(sceneLayers, map_matrix, debugHallMap) {
+export function putTilesOnLayers(sceneLayers, map_matrix, debugHallMap, sectorMap) {
     let randomTileNumer = 0;
         for (let x = 0; x < sectorTileSize * width; x++)
         {
@@ -116,6 +133,12 @@ export function putTilesOnLayers(sceneLayers, map_matrix, debugHallMap) {
                 }
             }
         }
+
+        if (debugArrowsWillBeDrawn) {
+            putArrowsOnDebugArrowLayer(sceneLayers.debugArrowLayer, sectorMap);
+        }
+
+
         
         /*for (let x = 1; x < width - 1; x++)
         {
@@ -130,6 +153,26 @@ export function putTilesOnLayers(sceneLayers, map_matrix, debugHallMap) {
                 }            
             }
         }*/
+}
+
+function putArrowsOnDebugArrowLayer(debugArrowLayer, sectorMap) {
+    for (let sx = 0; sx < sectorMap.length; sx++) {
+        for (let sy = 0; sy < sectorMap[0].length; sy++) {
+            if (sectorMap[sx][sy] != null) {
+                for (let name in sectorMap[sx][sy].directions) {                    
+                    if (sectorMap[sx][sy].directions[name]) {
+                        let arrowParameters = ARROW_TILESET_MAPPING[name];
+                        let baseX = sx * sectorTileSize + arrowParameters.dx;                        
+                        let baseY = sy * sectorTileSize + arrowParameters.dy;
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[0], baseX, baseY);
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[1], baseX + 1, baseY);
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[2], baseX, baseY + 1);
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[3], baseX + 1, baseY + 1);
+                    }
+                }
+            }            
+        }
+    }
 }
 
 export function createPlayerCar(scene, roomsArray) {

@@ -5,6 +5,7 @@ import Group from "../src/characters/group";
 import auroraSpriteSheet from '../assets/sprites/characters/aurora.png'
 import playerCar from '../assets/sprites/cars/playerCar.png';
 import npcCar from '../assets/sprites/cars/npcCar.png';
+import debugArrows from "../assets/streetTilesets/debugArrows/arrows.png";
 import Vector from "../src/accessoryClasses/vector";
 import punkSpriteSheet from '../assets/sprites/characters/punk.png'
 import blueSpriteSheet from '../assets/sprites/characters/blue.png'
@@ -41,6 +42,7 @@ export const width = 54;                  // !!! КРАТЕН 2; width = шир�
 export const height = 54;                 // !!! КРАТЕН 2; height = высота игрового поля + 4
 export const tileSize = 32;             //Размер тайла
 export const debugHallMapWillBeCreated = false;   //Создаётся или нет отладочная карта коридоров между комнатами (дорог)
+export const debugArrowsWillBeDrawn = true;   //Будут нарисованы или нет отладочные стрелки направлений секторов
                                                                                            
 
 /*export const sectorTileSize = 4;        // !!! КРАТЕН 2 (sectorSize - количество тайлов одного сектора по ширине и высоте)
@@ -72,7 +74,8 @@ let scene_taxi = new Phaser.Class({
         //this.load.spritesheet('aurora', auroraSpriteSheet, this.characterFrameConfig);
         //this.load.spritesheet('aurora', small_car, this.small_car);
         this.load.image('playerCar', playerCar);
-        this.load.image('npcCar', npcCar);                
+        this.load.image('npcCar', npcCar);  
+        this.load.image('debugArrows', debugArrows);                       
         this.load.spritesheet("streetTileSet", streetTileSetSheet, this.streetTileSetFrameConfig);
 
         this.load.spritesheet('blue', blueSpriteSheet, this.characterFrameConfig);
@@ -113,7 +116,7 @@ let scene_taxi = new Phaser.Class({
         //console.log(tilemapArray);
         let sceneLayers = createSceneLayers(this);       
         settingWorld(this, sceneLayers);
-        putTilesOnLayers(sceneLayers, tilemapArray, debugHallMap);
+        putTilesOnLayers(sceneLayers, tilemapArray, debugHallMap, sectorMap);
 
         this.npcCars = [];
         let roomNumber = 1;
