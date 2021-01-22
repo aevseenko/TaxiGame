@@ -15,10 +15,9 @@ export function createRoadMapSegments(scene) {
     let roomsArray = [];
     root.createRooms(roomsArray);
 
-    //Строим дороги
-    const hallSize = 2;          // !!! ДРУГИЕ РАЗМЕРЫ НЕ ПРОВЕРЯЛИСЬ !!! КРАТЕН 2 (обозначает ширину дороги в секторах)  
+    //Строим дороги    
     let hallsArray = [];
-    create_halls(hallsArray, leafs, hallSize);
+    create_halls(hallsArray, leafs);
 
     let result = {
         roomRectangles : roomsArray,
@@ -57,7 +56,7 @@ function generateLeafs(root) {
     return leafs;
 }
 
-function create_halls(hallsArray, leafs, hallSize) {
+function create_halls(hallsArray, leafs) {
     for (let current_leaf of leafs)
     {
         if (current_leaf.leftChild != undefined && current_leaf.rightChild != undefined)

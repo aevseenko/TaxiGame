@@ -1,11 +1,11 @@
-import { createBlank2DArray, asignZeroToAllElements } from "./accessory_functions";
+import { createBlank2DArray, assignToAllElementsOfArray } from "./accessory_functions";
 import { sectorTileSize, width, height } from "../../../scenes/scene_taxi";
 
 export function createDebugHallMap(hallRectangles) {
     let debugWidth = width * sectorTileSize;
     let debugHeight = height * sectorTileSize;
     let debugHallMap = createBlank2DArray(debugWidth);
-    asignZeroToAllElements(debugHallMap, debugWidth, debugHeight);
+    assignToAllElementsOfArray(debugHallMap, 0, debugWidth, debugHeight);
     addHallsTo(debugHallMap, hallRectangles)   
     return debugHallMap;
 }

@@ -1,9 +1,9 @@
 import {width, height} from "../../../scenes/scene_taxi";
-import {createBlank2DArray, asignZeroToAllElements, copy2DArray } from "./accessory_functions";
+import {createBlank2DArray, assignToAllElementsOfArray, copy2DArray } from "./accessory_functions";
 
 export function getRoomMap(roomsArray) {
     let roomMap = createBlank2DArray(width);
-    asignZeroToAllElements(roomMap, width, height);
+    assignToAllElementsOfArray(roomMap, 0, width, height);
     addRectanglesOnMap(roomMap, roomsArray);    
     return  roomMap;
 }

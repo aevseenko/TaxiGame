@@ -16,10 +16,10 @@ export function createBlank2DArray(width) {
     return result;
 }
 
-export function asignZeroToAllElements(array, width, height) {    
+export function assignToAllElementsOfArray(array, value, width, height) {    
     for (let w = 0; w < width; w++) {        
         for (let h = 0; h < height; h++) {
-            array[w][h] = 0;
+            array[w][h] = value;
         }
     }    
 }

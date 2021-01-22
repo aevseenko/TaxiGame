@@ -1,5 +1,6 @@
-import { sectorTileSize, width, height, debugHallMapWillBeCreated, debugArrowsWillBeDrawn } from "./scene_taxi";
+import { sectorTileSize, width, height, debugHallMapWillBeCreated, debugArrowsWillBeDrawn, npcDistance, tileSize } from "./scene_taxi";
 import { get_random_int as rand } from "../src/utils/evseenko_chukhin/accessory_functions";
+import Vector from "../src/accessoryClasses/vector";
 
 const TILE_MAPPING = {
     BLANK: 17,
@@ -19,13 +20,13 @@ const STREET_TILESET_MAPPING = {
     HALL : [20, 21]
 }
 
-const delta = 2;
+const delta = 1;
 
 const ARROW_TILESET_MAPPING = {    
-    left : { dx : 0, dy : 0, tileNumbers : [0, 1, 2, 3] },
-    up : { dx : delta, dy : 0, tileNumbers : [4, 5, 6, 7] },
+    left : { dx : delta, dy : delta, tileNumbers : [0, 1, 2, 3] },
+    up : { dx : delta, dy : delta, tileNumbers : [4, 5, 6, 7] },
     right : { dx : delta, dy : delta, tileNumbers : [8, 9, 10, 11] },
-    down : { dx : 0, dy : delta, tileNumbers : [12, 13, 14, 15] },
+    down : { dx : delta, dy : delta, tileNumbers : [12, 13, 14, 15] },
 }
 
 
@@ -174,6 +175,71 @@ function putArrowsOnDebugArrowLayer(debugArrowLayer, sectorMap) {
         }
     }
 }
+
+export function createNPCCars(scene, sectorMap) {
+    for (let x = 0; x < width; x += npcDistance) {
+        for (let y = 0; y < height; y++) {
+            if (sectorMap[x][y] != null) {                
+                if (sectorMap[x + 1][y] != null && sectorMap[x][y].directionsCoinside(sectorMap[x + 1][y])) {
+                    let sector;
+                    let npcX;
+                    let npcY = sectorMap[x + 1][y].center.y;
+                    let unitDirectionVector; 
+                    if (sectorMap[x + 1][y].directions.right) {      
+                        npcX = sectorMap[x + 1][y].center.x - sectorTileSize * tileSize / 2;  
+                        unitDirectionVector = new Vector(1, 0);    
+                        sector = sectorMap[x + 1][y];
+                    }
+
+                    if (sectorMap[x][y].directions.left) {      
+                        npcX = sectorMap[x][y].center.x + sectorTileSize * tileSize / 2;   
+                        unitDirectionVector = new Vector(-1, 0);    
+                        sector = sectorMap[x][y];     
+                    }
+                    
+                    addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap);  
+                }               
+            }
+        }    
+    }
+
+    for (let y = 0; y < height; y += npcDistance) {
+        for (let x = 0; x < width; x++)  {
+            if (sectorMap[x][y] != null) {   
+                if (sectorMap[x][y + 1] != null && sectorMap[x][y].directionsCoinside(sectorMap[x][y + 1])) {
+                    let sector;
+                    let npcX = sectorMap[x][y + 1].center.x;
+                    let npcY;
+                    let unitDirectionVector; 
+                    if (sectorMap[x][y + 1].directions.down) {      
+                        npcY = sectorMap[x][y + 1].center.y - sectorTileSize * tileSize / 2;  
+                        unitDirectionVector = new Vector(0, 1);   
+                        sector = sectorMap[x][y + 1];    
+                    }
+
+                    if (sectorMap[x][y].directions.up) {      
+                        npcY = sectorMap[x][y].center.y + sectorTileSize * tileSize / 2;   
+                        unitDirectionVector = new Vector(0, -1); 
+                        sector = sectorMap[x][y];         
+                    }
+                    
+                    addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap);                                     
+                }                             
+            }
+        }    
+    }
+}
+
+function addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap) {    
+    let npcCar = scene.characterFactory.buildCharacter("npcCar", npcX, npcY, 
+        { 
+            unitDirectionVector : unitDirectionVector,
+            targetSector : sector,
+            sectorMap : sectorMap
+        });       
+    scene.gameObjects.push(npcCar);
+}
+    
 
 export function createPlayerCar(scene, roomsArray) {
     let randomNumber = rand(0, roomsArray.length - 1);   
