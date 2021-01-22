@@ -9,43 +9,41 @@ export default class PlayerCar extends Car {
         //super(scene, x, y, name, frame); // original
         super(scene, x, y, name, frame, unitDirectionVector);
         scene.physics.world.enable(this);
-        scene.add.existing(this);  
+        scene.add.existing(this);
 
-        //this.setScale(0.25);          
+        //this.setScale(0.25);
         this.setCarHalfSizes();
 
-        this.currentSpeed = 0; 
+        this.currentSpeed = 0;
         this.acceleration = 100;
 
         this.leftVector = new Vector(-1, 0);
         this.upVector = new Vector(0, -1);
         this.rightVector = new Vector(1, 0);
-        this.downVector = new Vector(0, 1);        
-        
+        this.downVector = new Vector(0, 1);
+        //????????????????????????????
         //this.unitDirectionVector = unitDirectionVector;
         //this.angle = this.unitDirectionVector.angleInDegrees();
-
         this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         this.buttonRight = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-        this.buttonDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);                
+        this.buttonDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
 
-        this.gearUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);                
-        this.gearDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);    
+        this.gearUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+        this.gearDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.gearUpIsReadyForSwitch = true;
         this.gearDownIsReadyForSwitch = true;
         this.gearCount = 0;
-        //this.abilities  = params.abilities || [];
     }
 
     setCarHalfSizes() {
         let size1 = this.displayWidth;
         let size2 = this.displayHeight;
         this.carHalfLength = Math.max(size1, size2) / 2;
-        this.carHalfWidth = Math.min(size1, size2) / 2;   
+        this.carHalfWidth = Math.min(size1, size2) / 2;
     }
 
-    update() {        
+    update() {
         const body = this.body;
 
         if (!this.engineGear1Sound.isPlaying) // вооот так норм
@@ -94,17 +92,16 @@ export default class PlayerCar extends Car {
         //this.currentSpeed = this.updateSpeed(); // works
         //this.currentSpeed = this.updateSpeed(gearCount);
         this.currentSpeed = this.updateSpeed();
+        let cursorResultVector = this.updateDirection();
+        let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);
 
-        this.currentSpeed = this.updateSpeed();    
-        let cursorResultVector = this.updateDirection();        
-        let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);      
         let rotationDirection = -1;
         if (this.currentSpeed < 0) {
             rotationDirection = 1;
         }
         this.unitDirectionVector.rotateOnAngleInDegrees(rotationDirection * crossZCoordinate * 5);
-        this.angle = this.unitDirectionVector.angleInDegrees();            
-        body.velocity.x = this.currentSpeed * this.unitDirectionVector.x;   
+        this.angle = this.unitDirectionVector.angleInDegrees();
+        body.velocity.x = this.currentSpeed * this.unitDirectionVector.x;
         body.velocity.y = this.currentSpeed * this.unitDirectionVector.y;
 
         this.updateBodyBoundingSizes();
@@ -115,9 +112,9 @@ export default class PlayerCar extends Car {
                 this.scene.characterFactory.buildMine(this.body.x, this.body.y);
             }
         }*/
-        //this.body.setAcceleration()    
+        //this.body.setAcceleration()
 
-        /*if (cursors.left.isDown) {            
+        /*if (cursors.left.isDown) {
             body.velocity.x -= speed;
         } else if (cursors.right.isDown) {
             body.velocity.x += speed;
@@ -128,48 +125,57 @@ export default class PlayerCar extends Car {
             body.setVelocityY(-speed);
         } else if (cursors.down.isDown) {
             body.setVelocityY(speed);
-        }*/        
+        }*/
         //this.updateAnimation();
     };
 
-    updateDirection() {     
-        let result = new Vector(0, 0); 
+    updateDirection() {
+        let result = new Vector(0, 0);
         if (this.currentSpeed != 0) {
             if (this.buttonLeft.isDown) {
                 result.add(this.leftVector);
-            }        
-            
+            }
+
             if (this.buttonUp.isDown) {
                 result.add(this.upVector);
-            }      
-    
+            }
+
             if (this.buttonRight.isDown) {
-                result.add(this.rightVector);            
-            }        
-    
+                result.add(this.rightVector);
+            }
+
             if (this.buttonDown.isDown) {
                 result.add(this.downVector);
-            }   
+            }
+
+            /* // плохая идея, звук так себе
+            if (!this.turnSound.isPlaying && (this.buttonLeft.isDown ||
+                this.buttonUp.isDown || this.buttonRight.isDown || this.buttonDown.isDown))
+            {
+                this.turnSound.play();
+            }
+
+             */
         }
-        
+
         return result;
     }
 
     updateBodyBoundingSizes() {
         let vd = this.unitDirectionVector.copy();
-        vd.multiply(this.carHalfLength);  
+        vd.multiply(this.carHalfLength);
         let minus_vd = vd.copy();
         minus_vd.multiply(-1);
-        
+
         let vn = this.unitDirectionVector.getNormalVector();
-        vn.multiply(this.carHalfWidth);        
+        vn.multiply(this.carHalfWidth);
         let minus_vn = vn.copy();
         minus_vn.multiply(-1);
 
-        
+
         let c1 = vd.copy();
         c1.add(vn);
-        
+
         let c2 = vd.copy();
         c2.add(minus_vn);
 
@@ -179,7 +185,7 @@ export default class PlayerCar extends Car {
         let c4 = minus_vd.copy();
         c4.add(minus_vn);
 
-        let sizes = this.getBoundingBoxWidthAndHeight([c1, c2, c3, c4]);        
+        let sizes = this.getBoundingBoxWidthAndHeight([c1, c2, c3, c4]);
         this.body.setSize(sizes.width / this.scale, sizes.height / this.scale);
     }
 
@@ -209,8 +215,9 @@ export default class PlayerCar extends Car {
         }
 
         return {width : Math.abs(minX) + Math.abs(maxX),
-                height : Math.abs(minY) + Math.abs(maxY)};
+            height : Math.abs(minY) + Math.abs(maxY)};
     }
+
     updateSpeed() {
         let newSpeed = this.currentSpeed;
         let isGearPlaying = this.switchGearSound.isPlaying;
@@ -354,5 +361,5 @@ export default class PlayerCar extends Car {
                 const frame = currentAnimation.getLastFrame();
                 this.setTexture(frame.textureKey, frame.textureFrame);
             }
-        }*/    
+        }*/
 }
