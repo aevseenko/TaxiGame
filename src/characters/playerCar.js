@@ -1,8 +1,10 @@
 //import { PhaserMath } from "phaser";
 import Mine from "./mine";
 import Vector from "../accessoryClasses/vector.js"
+import Car from "./car";
 
 export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
+//export default class PlayerCar extends Car {
     constructor(scene, x, y, name, frame, params, unitDirectionVector) {
         super(scene, x, y, name, frame);
         scene.physics.world.enable(this);
@@ -19,8 +21,8 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         this.rightVector = new Vector(1, 0);
         this.downVector = new Vector(0, 1);        
         
-        this.unitDirectionVector = unitDirectionVector;   
-        this.angle = this.unitDirectionVector.angleInDegrees();      
+        this.unitDirectionVector = unitDirectionVector;
+        this.angle = this.unitDirectionVector.angleInDegrees();
 
         this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -31,8 +33,8 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         this.gearDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);    
         this.gearUpIsReadyForSwitch = true;
         this.gearDownIsReadyForSwitch = true;
-
-        this.abilities  = params.abilities || [];                              
+        this.gearCount = 0;
+        //this.abilities  = params.abilities || [];
     }
 
     setCarHalfSizes() {
@@ -43,7 +45,55 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
     }
 
     update() {        
-        const body = this.body;             
+        const body = this.body;
+
+        if (!this.engineGear1Sound.isPlaying) // вооот так норм
+        {
+            this.engineGear1Sound.play();
+            this.engineGear1Sound.pause();
+        }
+        else this.engineGear1Sound.pause();
+
+        if (!this.engineGear2Sound.isPlaying) // вооот так норм
+        {
+            this.engineGear2Sound.play();
+            this.engineGear2Sound.pause();
+        }
+        else this.engineGear2Sound.pause();
+
+        if (!this.engineGear3Sound.isPlaying) // вооот так хорошо
+        {
+            this.engineGear3Sound.play();
+            this.engineGear3Sound.pause();
+        }
+        else this.engineGear3Sound.pause();
+
+        if (!this.engineGear4Sound.isPlaying) // вооот так хорошо
+        {
+            this.engineGear4Sound.play();
+            this.engineGear4Sound.pause();
+        }
+        else this.engineGear4Sound.pause();
+
+        if (!this.engineGear5Sound.isPlaying) // вооот так хорошо
+        {
+            this.engineGear5Sound.play();
+            this.engineGear5Sound.pause();
+        }
+        else this.engineGear5Sound.pause();
+
+        if (!this.engineGear6Sound.isPlaying) // вооот так хорошо
+        {
+            this.engineGear6Sound.play();
+            this.engineGear6Sound.pause();
+        }
+        else this.engineGear6Sound.pause();
+
+        //this.engineGear2Sound.pause();
+        //this.currentSpeed = this.updateSpeed(); // works
+        //this.currentSpeed = this.updateSpeed(gearCount);
+        this.currentSpeed = this.updateSpeed();
+
         this.currentSpeed = this.updateSpeed();    
         let cursorResultVector = this.updateDirection();        
         let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);      
@@ -160,21 +210,123 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         return {width : Math.abs(minX) + Math.abs(maxX),
                 height : Math.abs(minY) + Math.abs(maxY)};
     }
-    updateSpeed() {       
-        let newSpeed = this.currentSpeed;        
-        if (this.gearUpIsReadyForSwitch && this.gearUp.isDown && this.currentSpeed < this.maxSpeed) {
+    updateSpeed() {
+        let newSpeed = this.currentSpeed;
+        let isGearPlaying = this.switchGearSound.isPlaying;
+        let isEngineStartPlaying = this.engineStartSound.isPlaying;
+        let isEngineStopPlaying = this.engineStopSound.isPlaying;
+        let newGearCount = this.gearCount;
+
+///*
+        let engineSound = this.engineGear1Sound;
+        //engineSound.play();
+        //engineSound.pause();
+        //this.engineGear2Sound.play();
+        //this.engineGear2Sound.pause();
+
+        switch (newGearCount) {
+            //case 0:                         // при нуле стоим
+            //this.game.sound.stopAll();  // проверить сработает ли 1 - no
+            //this.scene.sound.stopAll(); // проверить сработает ли 2 - yes
+            //break;
+
+            case 1:
+                //engineSound.stop();
+                engineSound = this.engineGear1Sound;
+                engineSound.resume();
+                break;
+
+            case 2:
+                //engineSound.stop();
+                engineSound = this.engineGear2Sound;
+                engineSound.resume();
+                break;
+
+            case 3:
+                //engineSound.stop();
+                engineSound = this.engineGear3Sound;
+                engineSound.resume();
+                break;
+
+            case 4:
+                //engineSound.stop();
+                engineSound = this.engineGear4Sound;
+                engineSound.resume();
+                break;
+
+            case 5:
+                //engineSound.stop();
+                engineSound = this.engineGear5Sound;
+                engineSound.resume();
+                break;
+
+            case 6:
+                //engineSound.stop();
+                engineSound = this.engineGear6Sound;
+                engineSound.resume();
+                break;
+
+            default:
+                //this.game.sound.stopAll();  // проверить сработает ли 1 - no
+                //this.scene.sound.stopAll(); // проверить сработает ли 2 - yes
+                break;
+        }
+//*/
+        //console.log("isEngineStartPlaying before if", isEngineStartPlaying);
+        if (this.gearUpIsReadyForSwitch && this.gearUp.isDown && this.currentSpeed < this.maxSpeed)
+        {
             newSpeed += this.acceleration;
+            //gearCount++;
+            newGearCount++;
+            console.log("gearCount in ++ update = ", newGearCount);
+            //if (!isGearPlaying)
+            if(this.currentSpeed == 0 && newSpeed >= this.currentSpeed) // проверка состояния старта
+            {
+                //if(this.currentSpeed == 0 && newSpeed >= this.currentSpeed) // проверка состояния старта
+                if (!isEngineStartPlaying)
+                {
+                    this.engineStartSound.play();
+                    //console.log("isEngineStartPlaying after .play()", isEngineStartPlaying);
+                    //this.engineGear1Sound.play(); // что-то там щелкает в обоих версиях, хз как обрезать
+                }
+            }
+            if (!isGearPlaying && !isEngineStartPlaying && this.currentSpeed >= this.acceleration)
+            {
+                //console.log("isEngineStartPlaying in switchGear if", isEngineStartPlaying);
+                this.switchGearSound.play();
+                //console.log('gear switched');
+            }
         }
 
         this.gearUpIsReadyForSwitch = this.gearUp.isUp;
 
-        if (this.gearDownIsReadyForSwitch && this.gearDown.isDown && this.currentSpeed > this.minSpeed) {
+        if (this.gearDownIsReadyForSwitch && this.gearDown.isDown && this.currentSpeed > this.minSpeed)
+        {
             newSpeed -= this.acceleration;
+            //gearCount--;
+            newGearCount--;
+            if (!isGearPlaying)
+            {
+                this.switchGearSound.play();
+                //console.log('gear switched');
+                if (newSpeed == 0)
+                {
+                    // звук выключения двигателя
+                    this.engineStopSound.play();
+                }
+            }
         }
 
         this.gearDownIsReadyForSwitch = this.gearDown.isUp;
-        
+
+        if (this.newSpeed !== 0) // двигатель не выключен
+        {
+            //engineSound.resume();
+        }
+        this.gearCount = newGearCount;
+        //console.log("gearCount in end of update = ", this.gearCount);
         return newSpeed;
+        //return [newSpeed, gearCount];
     }
 
     /*updateAnimation() {

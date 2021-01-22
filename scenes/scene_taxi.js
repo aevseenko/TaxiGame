@@ -14,6 +14,17 @@ import greenSpriteSheet from '../assets/sprites/characters/green.png'
 import slimeSpriteSheet from '../assets/sprites/characters/slime.png'
 import streetTileSetSheet from "../assets/streetTilesets/asphalt.png";
 import Footsteps from "../assets/audio/footstep_ice_crunchy_run_01.wav";
+
+import switchGearSound from "../assets/audio/z_uk-motora-bolid-formuly-1_v8_cutted_v2_switch_gear.wav" //
+import engineStartSound from "../assets/audio/Sound_18577_engine_start_v1.mp3"
+import engineStopSound from "../assets/audio/stop_engine_v1.mp3"
+import engineGear1Sound from "../assets/audio/4_engine_1_v2.mp3"
+import engineGear2Sound from "../assets/audio/4_engine_2_v6.mp3"
+import engineGear3Sound from "../assets/audio/4_engine_3_v2.mp3"
+import engineGear4Sound from "../assets/audio/4_engine_4_v1.mp3"
+import engineGear5Sound from "../assets/audio/4_engine_5.mp3"
+import engineGear6Sound from "../assets/audio/4_engine_6.mp3"
+
 import EffectsFactory from "../src/utils/effects-factory";
 import tilemapPng from '../assets/tileset/Dungeon_Tileset.png';
 import {createRoadMapSegments} from "../src/utils/evseenko_chukhin/roadSegmentsCreation";
@@ -89,6 +100,15 @@ let scene_taxi = new Phaser.Class({
         this.load.spritesheet('punk', punkSpriteSheet, this.characterFrameConfig);
         this.load.spritesheet('slime', slimeSpriteSheet, this.slimeFrameConfig);
         this.load.audio('footsteps', Footsteps);
+        this.load.audio('switchGearSound', switchGearSound);
+        this.load.audio('engineStartSound', engineStartSound);
+        this.load.audio('engineStopSound', engineStopSound);
+        this.load.audio('engineGear1Sound', engineGear1Sound);
+        this.load.audio('engineGear2Sound', engineGear2Sound);
+        this.load.audio('engineGear3Sound', engineGear3Sound);
+        this.load.audio('engineGear4Sound', engineGear4Sound);
+        this.load.audio('engineGear5Sound', engineGear5Sound);
+        this.load.audio('engineGear6Sound', engineGear6Sound);
         //this.effectsFactory = new EffectsFactory(this);
     },
 

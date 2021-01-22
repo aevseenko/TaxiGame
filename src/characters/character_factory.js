@@ -87,6 +87,96 @@ export default class CharacterFactory {
         //todo uncomment at your won risk - these footsteps will get you insane
         // character.footstepsMusic.play();
 
+        character.switchGearSound = this.scene.sound.add('switchGearSound', {
+            mute: false,
+            volume: 0.5, // 1
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: false,
+            delay: 0
+        });
+
+        character.engineStartSound = this.scene.sound.add('engineStartSound', {
+            mute: false,
+            volume: 1.2, // 1
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: false,
+            delay: 0
+        });
+
+        character.engineStopSound = this.scene.sound.add('engineStopSound', {
+            mute: false,
+            volume: 1.5, // 1
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: false,
+            delay: 0
+        });
+
+        character.engineGear1Sound = this.scene.sound.add('engineGear1Sound', {
+            mute: false,
+            volume: 0.3, // 1
+            rate: 0.6,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        character.engineGear2Sound = this.scene.sound.add('engineGear2Sound', {
+            mute: false,
+            volume: 0.4, // 1
+            rate: 0.6,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        character.engineGear3Sound = this.scene.sound.add('engineGear3Sound', {
+            mute: false,
+            volume: 0.3, // 1
+            rate: 0.6,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        character.engineGear4Sound = this.scene.sound.add('engineGear4Sound', {
+            mute: false,
+            volume: 0.6, // 1
+            rate: 0.6,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        character.engineGear5Sound = this.scene.sound.add('engineGear5Sound', {
+            mute: false,
+            volume: 0.4, // 1
+            rate: 0.6,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        character.engineGear6Sound = this.scene.sound.add('engineGear6Sound', {
+            mute: false,
+            volume: 0.5, // 1
+            rate: 0.6,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
 
         return character;
 
