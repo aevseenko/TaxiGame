@@ -120,7 +120,7 @@ let scene_taxi = new Phaser.Class({
         //this.effectsFactory.loadAnimations();
 
         let segments = createRoadMapSegments(this);
-        console.log(segments);
+        //console.log(segments);
         let roomsArray = segments.roomRectangles;
         let roomMap = getRoomMap(roomsArray);
         let fullBasicRoadMap = getFullRoadMapBasedOn(roomMap, segments.hallRectangles);
@@ -155,15 +155,23 @@ let scene_taxi = new Phaser.Class({
         let playerCarX = (rand(roomsArray[randomNumber].corner_x + 1, roomsArray[randomNumber].corner_x - 1 + roomsArray[randomNumber].size_x) - 0.5) * this.tile_size;
         let playerCarY = (rand(roomsArray[randomNumber].corner_y + 1,
         roomsArray[randomNumber].corner_y - 1 + roomsArray[randomNumber].size_y) - 0.5) * this.tile_size;*/
-        this.player = this.characterFactory.buildCharacter('playerCar', 200, 200, {player: true}); 
-        //this.player = createPlayerCar(this, roomsArray);         
+        //this.player = this.characterFactory.buildCharacter('playerCar', 200, 200, {player: true}); // original
+        this.player = createPlayerCar(this, roomsArray); // in original coomended, but works
         this.gameObjects.push(this.player);
         
         //console.log(this);
 
-        /*scene.physics.add.collider(scene.player, groundLayer);
+        /*
+        scene.physics.add.collider(scene.player, groundLayer);
         scene.physics.add.collider(scene.player, stuffLayer);
-        scene.physics.add.collider(scene.player, outsideLayer);*/
+        scene.physics.add.collider(scene.player, outsideLayer);
+        */
+
+
+        //this.physics.add.collider(this.player, this.NPCCar); // not collide
+        //this.physics.add.collider(this.player, this.pedastrianAreaLayer); // not collide
+        this.physics.add.collider(this.player, sceneLayers.pedastrianAreaLayer); // work!
+        // но машина спавнится вне системы дорог
 
         setCameraParametersFor(this);        
 

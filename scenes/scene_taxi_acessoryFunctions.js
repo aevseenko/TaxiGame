@@ -247,7 +247,8 @@ export function createPlayerCar(scene, roomsArray) {
         roomsArray[randomNumber].corner_x - 1 + roomsArray[randomNumber].size_x) - 0.5) * scene.tile_size;
     let auroraY = (rand(roomsArray[randomNumber].corner_y + 1,
         roomsArray[randomNumber].corner_y - 1 + roomsArray[randomNumber].size_y) - 0.5) * scene.tile_size;
-    return scene.characterFactory.buildCharacter('playerCar', 200, 200, {player: true});    
+    //return scene.characterFactory.buildCharacter('playerCar', 200, 200, {player: true});
+    return scene.characterFactory.buildCharacter('playerCar', 800, 800, {player: true});
 }
 
 export function setCameraParametersFor(scene) {
