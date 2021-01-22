@@ -46,6 +46,7 @@ export default class PlayerCar extends Car {
     update() {
         const body = this.body;
 
+        /*
         if (!this.engineGear1Sound.isPlaying) // вооот так норм
         {
             this.engineGear1Sound.play();
@@ -87,7 +88,7 @@ export default class PlayerCar extends Car {
             this.engineGear6Sound.pause();
         }
         else this.engineGear6Sound.pause();
-
+*/
         //this.engineGear2Sound.pause();
         //this.currentSpeed = this.updateSpeed(); // works
         //this.currentSpeed = this.updateSpeed(gearCount);
@@ -231,7 +232,7 @@ export default class PlayerCar extends Car {
         //engineSound.pause();
         //this.engineGear2Sound.play();
         //this.engineGear2Sound.pause();
-
+/*
         switch (newGearCount) {
             //case 0:                         // при нуле стоим
             //this.game.sound.stopAll();  // проверить сработает ли 1 - no
@@ -279,6 +280,8 @@ export default class PlayerCar extends Car {
                 //this.scene.sound.stopAll(); // проверить сработает ли 2 - yes
                 break;
         }
+
+ */
 //*/
         //console.log("isEngineStartPlaying before if", isEngineStartPlaying);
         if (this.gearUpIsReadyForSwitch && this.gearUp.isDown && this.currentSpeed < this.maxSpeed)
@@ -331,6 +334,9 @@ export default class PlayerCar extends Car {
         {
             //engineSound.resume();
         }
+
+        //if (this.gearCount == -1 && )
+
         this.gearCount = newGearCount;
         //console.log("gearCount in end of update = ", this.gearCount);
         return newSpeed;
