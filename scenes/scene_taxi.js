@@ -138,7 +138,17 @@ let scene_taxi = new Phaser.Class({
         let sceneLayers = createSceneLayers(this);       
         settingWorld(this, sceneLayers);
         putTilesOnLayers(sceneLayers, tilemapArray, debugHallMap, sectorMap);
-        this.player = this.characterFactory.buildCharacter('playerCar', 1200, 1200, {player: true}); // пробуем после тайлов, но до npc
+
+        let roomNumber = rand(0, segments.roomRectangles.length - 1);
+        let chosenRectangle = segments.roomRectangles[roomNumber];
+        while (chosenRectangle.size_x <= 4 || chosenRectangle.size_y <= 4) {
+            roomNumber = rand(0, segments.roomRectangles.length - 1);
+            chosenRectangle = segments.roomRectangles[roomNumber];
+        }
+
+        let playerCarX = (chosenRectangle.corner_x + 2) * sectorTileSize * tileSize;
+        let playerCarY = (chosenRectangle.corner_y + 2) * sectorTileSize * tileSize;
+        this.player = this.characterFactory.buildCharacter('playerCar', playerCarX, playerCarY, {player: true}); // пробуем после тайлов, но до npc
         createNPCCars(this, sectorMap)
         /*let sectorIX = roomsArray[roomNumber].corner_x;
         let sectorIY = roomsArray[roomNumber].corner_y + roomsArray[roomNumber].size_y / 2;        
