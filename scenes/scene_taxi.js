@@ -119,6 +119,8 @@ let scene_taxi = new Phaser.Class({
         this.tileSize = tileSize;
         //this.effectsFactory.loadAnimations();
 
+        //this.player = this.characterFactory.buildCharacter('playerCar', 1200, 1200, {player: true}); // оказывается под картой
+
         let segments = createRoadMapSegments(this);
         //console.log(segments);
         let roomsArray = segments.roomRectangles;
@@ -134,6 +136,7 @@ let scene_taxi = new Phaser.Class({
         let sceneLayers = createSceneLayers(this);       
         settingWorld(this, sceneLayers);
         putTilesOnLayers(sceneLayers, tilemapArray, debugHallMap, sectorMap);
+        this.player = this.characterFactory.buildCharacter('playerCar', 1200, 1200, {player: true}); // пробуем после тайлов, но до npc
         createNPCCars(this, sectorMap)
         /*let sectorIX = roomsArray[roomNumber].corner_x;
         let sectorIY = roomsArray[roomNumber].corner_y + roomsArray[roomNumber].size_y / 2;        
@@ -155,8 +158,8 @@ let scene_taxi = new Phaser.Class({
         let playerCarX = (rand(roomsArray[randomNumber].corner_x + 1, roomsArray[randomNumber].corner_x - 1 + roomsArray[randomNumber].size_x) - 0.5) * this.tile_size;
         let playerCarY = (rand(roomsArray[randomNumber].corner_y + 1,
         roomsArray[randomNumber].corner_y - 1 + roomsArray[randomNumber].size_y) - 0.5) * this.tile_size;*/
-        //this.player = this.characterFactory.buildCharacter('playerCar', 200, 200, {player: true}); // original
-        this.player = createPlayerCar(this, roomsArray); // in original coomended, but works
+        //this.player = this.characterFactory.buildCharacter('playerCar', 800, 800, {player: true}); // original
+        //this.player = createPlayerCar(this, roomsArray); // in original coomended, but works
         this.gameObjects.push(this.player);
         
         //console.log(this);
@@ -170,8 +173,11 @@ let scene_taxi = new Phaser.Class({
 
         //this.physics.add.collider(this.player, this.NPCCar); // not collide
         //this.physics.add.collider(this.player, this.pedastrianAreaLayer); // not collide
+
         this.physics.add.collider(this.player, sceneLayers.pedastrianAreaLayer); // work!
         // но машина спавнится вне системы дорог
+
+        //this.physics.add.collider(this.player, sceneLayers.pedastrianAreaLayer);
 
         setCameraParametersFor(this);        
 

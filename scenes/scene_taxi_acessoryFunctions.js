@@ -236,7 +236,24 @@ function addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap) {
             unitDirectionVector : unitDirectionVector,
             targetSector : sector,
             sectorMap : sectorMap
-        });       
+        });
+
+    // далее идет не оригинал
+
+    //this.physics.add.collider(scene.player, this.NPCCar);       // scene_taxi_acessoryFunctions.js:243 Uncaught TypeError: Cannot read property 'physics' of undefined
+    //scene.physics.add.collider(scene.player, npcCar);           // Uncaught TypeError: Cannot read property 'isParent' of undefined
+    //scene.physics.add.collider(scene.player, this.npcCar);      // Uncaught TypeError: Cannot read property 'npcCar' of undefined
+    //scene.physics.add.collider(this.scene.player, this.npcCar); // Uncaught TypeError: Cannot read property 'scene' of undefined
+    //scene.physics.add.collider(this.scene.player, npcCar);      // Uncaught TypeError: Cannot read property 'scene' of undefined
+    //------------------------------------------------------------------------------------------------------------------------------
+    // изменил порядок появления, теперь сначала player, потом npc
+
+    //this.physics.add.collider(scene.player, this.NPCCar);       // TypeError: Cannot read property 'physics' of undefined
+    scene.physics.add.collider(scene.player, npcCar);           // работает, далее по списку не тестил
+    //scene.physics.add.collider(scene.player, this.npcCar);      // Uncaught TypeError: Cannot read property 'npcCar' of undefined
+    //scene.physics.add.collider(this.scene.player, this.npcCar); // Uncaught TypeError: Cannot read property 'scene' of undefined
+    //scene.physics.add.collider(this.scene.player, npcCar);      // Uncaught TypeError: Cannot read property 'scene' of undefined
+
     scene.gameObjects.push(npcCar);
 }
     
@@ -247,8 +264,8 @@ export function createPlayerCar(scene, roomsArray) {
         roomsArray[randomNumber].corner_x - 1 + roomsArray[randomNumber].size_x) - 0.5) * scene.tile_size;
     let auroraY = (rand(roomsArray[randomNumber].corner_y + 1,
         roomsArray[randomNumber].corner_y - 1 + roomsArray[randomNumber].size_y) - 0.5) * scene.tile_size;
-    //return scene.characterFactory.buildCharacter('playerCar', 200, 200, {player: true});
-    return scene.characterFactory.buildCharacter('playerCar', 800, 800, {player: true});
+    //return scene.characterFactory.buildCharacter('playerCar', 200, 200, {player: true}); // original
+    //return scene.characterFactory.buildCharacter('playerCar', 800, 800, {player: true});
 }
 
 export function setCameraParametersFor(scene) {
