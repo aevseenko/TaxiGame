@@ -1,25 +1,14 @@
 import {width, height} from "../../../scenes/scene_taxi";
+import {createBlank2DArray, assignToAllElementsOfArray, copy2DArray } from "./accessory_functions";
 
-export function fillRoadMap(roomsArray)
-{    
-    let roadMap = new Array();  
-    addGrassTo(roadMap);  
-    addRoomsTo(roadMap, roomsArray);    
-    return  roadMap;
+export function getRoomMap(roomsArray) {
+    let roomMap = createBlank2DArray(width);
+    assignToAllElementsOfArray(roomMap, 0, width, height);
+    addRectanglesOnMap(roomMap, roomsArray);    
+    return  roomMap;
 }
 
-function addGrassTo(roadMap) {    
-    for (let w = 0; w < width; w++)
-    {
-        roadMap[w] = new Array();
-        for (let h = 0; h < height; h++)
-        {
-            roadMap[w][h] = 0;
-        }
-    }    
-}
-
-function addRoomsTo(roadMap, rectangleArray) {
+function addRectanglesOnMap(roadMap, rectangleArray) {
     for (let currentRectangle of rectangleArray)
     {      
         let firstCornerX = currentRectangle.corner_x;
@@ -34,4 +23,10 @@ function addRoomsTo(roadMap, rectangleArray) {
             }
         }
     }
+}
+
+export function getFullRoadMapBasedOn(roomMap, hallRectangles) {
+    let result = copy2DArray(roomMap);    
+    addRectanglesOnMap(result, hallRectangles);
+    return result;
 }

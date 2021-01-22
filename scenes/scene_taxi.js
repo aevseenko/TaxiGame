@@ -5,6 +5,7 @@ import Group from "../src/characters/group";
 import auroraSpriteSheet from '../assets/sprites/characters/aurora.png'
 import playerCar from '../assets/sprites/cars/playerCar.png';
 import npcCar from '../assets/sprites/cars/npcCar.png';
+import debugArrows from "../assets/streetTilesets/debugArrows/whiteArrows.png"
 import Vector from "../src/accessoryClasses/vector";
 import punkSpriteSheet from '../assets/sprites/characters/punk.png'
 import blueSpriteSheet from '../assets/sprites/characters/blue.png'
@@ -29,14 +30,17 @@ import {createRoadMapSegments} from "../src/utils/evseenko_chukhin/roadSegmentsC
 import CellularAutomataMapGenerator from '../src/utils/automata_generator/map-generator';
 import CellularAutomataLevelBuilder from '../src/utils/automata_generator/level-builder';
 import { TILES } from '../src/utils/automata_generator/tiles';
-import { fillRoadMap } from "../src/utils/evseenko_chukhin/roadMap";
-import { fillTilemapArray } from"../src/utils/evseenko_chukhin/tilemapArray";
-import { createSectorMapBasedOn } from "../src/utils/evseenko_chukhin/sectorMap";
-import { get_random_int as rand } from "../src/utils/evseenko_chukhin/accessory_functions";
+import { getRoomMap, getFullRoadMapBasedOn } from "../src/utils/evseenko_chukhin/basicMap";
+import { fillTilemapArray, extendTo } from"../src/utils/evseenko_chukhin/tilemapArray";
+import { createSectorMap } from "../src/utils/evseenko_chukhin/sectorMapNew";
+//import { createSectorMap } from "../src/utils/evseenko_chukhin/sectorMap";
+import { get_random_int as rand, createBlank2DArray } from "../src/utils/evseenko_chukhin/accessory_functions";
+import { createDebugHallMap } from "../src/utils/evseenko_chukhin/debugHallMap";
 import {
         createSceneLayers, 
         settingWorld, 
         putTilesOnLayers, 
+        createNPCCars,
         createPlayerCar, 
         setCameraParametersFor, 
         addDebugGraphicsFor
@@ -44,11 +48,26 @@ import {
 
 export const sectorTileSize = 4;        // !!! КРАТЕН 2 (sectorSize - количество тайлов одного сектора по ширине и высоте)
 export const MAX_LEAF_SIZE = 20;           // !!! КРАТЕН 2 
+export const MIN_LEAF_SIZE = 10;    // !!! КРАТЕН 2
+export const MIN_ROOM_SIZE = 4;     // !!! КРАТЕН 2; меньше MIN_LEAF_SIZE на 4 (как минимум)
+export const width = 54;                  // !!! КРАТЕН 2; width = ширина игрового поля + 4
+export const height = 54;                 // !!! КРАТЕН 2; height = высота игрового поля + 4
+export const tileSize = 32;             //Размер тайла
+export const debugHallMapWillBeCreated = false;   //Создаётся или нет отладочная карта коридоров между комнатами (дорог)
+export const debugArrowsWillBeDrawn = true;   //Будут нарисованы или нет отладочные стрелки направлений секторов
+export const npcDistance = 6;
+
+export const hallSize = 2;          // !!! ДРУГИЕ РАЗМЕРЫ НЕ ПРОВЕРЯЛИСЬ !!! КРАТЕН 2 (обозначает ширину дороги в секторах)  
+                                                                                           
+
+/*export const sectorTileSize = 4;        // !!! КРАТЕН 2 (sectorSize - количество тайлов одного сектора по ширине и высоте)
+export const MAX_LEAF_SIZE = 20;           // !!! КРАТЕН 2 
 export const MIN_LEAF_SIZE = 6;    // !!! КРАТЕН 2
 export const MIN_ROOM_SIZE = 2;     // !!! КРАТЕН 2; меньше MIN_LEAF_SIZE на 4 (как минимум)
 export const width = 54;                  // !!! КРАТЕН 2; width = ширина игрового поля + 4
 export const height = 54;                 // !!! КРАТЕН 2; height = высота игрового поля + 4
-export const tileSize = 32;             //Размер тайла
+export const tileSize = 32;             //Размер тайла*/
+
 
 let scene_taxi = new Phaser.Class({
 
@@ -70,7 +89,8 @@ let scene_taxi = new Phaser.Class({
         //this.load.spritesheet('aurora', auroraSpriteSheet, this.characterFrameConfig);
         //this.load.spritesheet('aurora', small_car, this.small_car);
         this.load.image('playerCar', playerCar);
-        this.load.image('npcCar', npcCar);                
+        this.load.image('npcCar', npcCar);  
+        this.load.image('debugArrows', debugArrows);                       
         this.load.spritesheet("streetTileSet", streetTileSetSheet, this.streetTileSetFrameConfig);
 
         this.load.spritesheet('blue', blueSpriteSheet, this.characterFrameConfig);
@@ -101,23 +121,20 @@ let scene_taxi = new Phaser.Class({
         let segments = createRoadMapSegments(this);
         console.log(segments);
         let roomsArray = segments.roomRectangles;
-        let roadMap = fillRoadMap(roomsArray);
-        console.log(roadMap);
-        let sectorMap = createSectorMapBasedOn(roomsArray);
-        console.log(sectorMap);
-        let tilemapArray = fillTilemapArray(roadMap);
-        //console.log(tilemapArray);
+        let roomMap = getRoomMap(roomsArray);
+        let fullBasicRoadMap = getFullRoadMapBasedOn(roomMap, segments.hallRectangles);
+        let tilemapArray = fillTilemapArray(fullBasicRoadMap);
+        let sectorMap = createSectorMap(fullBasicRoadMap);        
+        //let sectorMap = createSectorMap(segments, roomMap);    
+        let debugHallMap = null;
+        if (debugHallMapWillBeCreated) {
+            debugHallMap = createDebugHallMap(segments.hallRectangles);
+        }        
         let sceneLayers = createSceneLayers(this);       
         settingWorld(this, sceneLayers);
-        putTilesOnLayers(sceneLayers, tilemapArray);
-
-        this.npcCars = [];
-        let roomNumber = 1;
-        while (roomsArray[roomNumber].size_y < 4) {
-            roomNumber++;
-        }
-
-        let sectorIX = roomsArray[roomNumber].corner_x;
+        putTilesOnLayers(sceneLayers, tilemapArray, debugHallMap, sectorMap);
+        createNPCCars(this, sectorMap)
+        /*let sectorIX = roomsArray[roomNumber].corner_x;
         let sectorIY = roomsArray[roomNumber].corner_y + roomsArray[roomNumber].size_y / 2;        
         let sector = sectorMap[sectorIX][sectorIY];        
         let npcX = sector.center.x;
@@ -131,7 +148,7 @@ let scene_taxi = new Phaser.Class({
                 sectorMap : sectorMap
              });       
         this.npcCars.push(npcCar);
-        this.gameObjects.push(npcCar);
+        this.gameObjects.push(npcCar);*/
 
         /*let randomNumber = rand(0, roomsArray.length - 1);   
         let playerCarX = (rand(roomsArray[randomNumber].corner_x + 1, roomsArray[randomNumber].corner_x - 1 + roomsArray[randomNumber].size_x) - 0.5) * this.tile_size;
@@ -149,7 +166,7 @@ let scene_taxi = new Phaser.Class({
 
         setCameraParametersFor(this);        
 
-        addDebugGraphicsFor(this);
+        addDebugGraphicsFor(this);        
     },
 
     update: function () {

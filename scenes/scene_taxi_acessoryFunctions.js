@@ -1,5 +1,6 @@
-import { sectorTileSize, width, height } from "./scene_taxi";
+import { sectorTileSize, width, height, debugHallMapWillBeCreated, debugArrowsWillBeDrawn, npcDistance, tileSize } from "./scene_taxi";
 import { get_random_int as rand } from "../src/utils/evseenko_chukhin/accessory_functions";
+import Vector from "../src/accessoryClasses/vector";
 
 const TILE_MAPPING = {
     BLANK: 17,
@@ -15,13 +16,25 @@ const STREET_TILESET_MAPPING = {
     ASPHALT: [0, 1, 2, 3],
     GRASS : [4, 5, 6, 7],
     ROOF : [8, 9, 10, 11],
-    PEDASTRIAN_AREA : [12, 12, 12, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19]
+    PEDASTRIAN_AREA : [12, 12, 12, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19],
+    HALL : [20, 21]
 }
 
-const LEVEL_TO_STREET_TILESET ={
+const delta = 1;
+
+const ARROW_TILESET_MAPPING = {    
+    left : { dx : delta, dy : delta, tileNumbers : [0, 1, 2, 3] },
+    up : { dx : delta, dy : delta, tileNumbers : [4, 5, 6, 7] },
+    right : { dx : delta, dy : delta, tileNumbers : [8, 9, 10, 11] },
+    down : { dx : delta, dy : delta, tileNumbers : [12, 13, 14, 15] },
+}
+
+
+
+/*const LEVEL_TO_STREET_TILESET ={
     0: STREET_TILESET_MAPPING.GRASS,
     1: STREET_TILESET_MAPPING.ASPHALT
-}
+}*/
 
 export function createSceneLayers(scene) {
     let tile_size = scene.tileSize; 
@@ -37,12 +50,25 @@ export function createSceneLayers(scene) {
     let roadsLayer  = scene.map.createBlankDynamicLayer("Roads", streetTileSet);
     let pedastrianAreaLayer = scene.map.createBlankDynamicLayer("Pedastrian Area", streetTileSet);
     let roofLayer  = scene.map.createBlankDynamicLayer("Roofs", streetTileSet);
-    return { 
+    let result = { 
         grassLayer : grassLayer, 
         roadsLayer : roadsLayer, 
         pedastrianAreaLayer : pedastrianAreaLayer, 
-        roofLayer : roofLayer
+        roofLayer : roofLayer        
     }
+
+    if (debugHallMapWillBeCreated) {
+        let hallLayer  = scene.map.createBlankDynamicLayer("Halls", streetTileSet);        
+        result.hallLayer = hallLayer;
+    }
+
+    if (debugArrowsWillBeDrawn) {
+        let debugArrowsTileSet = scene.map.addTilesetImage("debugArrows", null, tile_size, tile_size);  
+        let debugArrowLayer  = scene.map.createBlankDynamicLayer("Debug arrows", debugArrowsTileSet);        
+        result.debugArrowLayer = debugArrowLayer;
+    }
+   
+    return result;
 }
 
 export function settingWorld(scene, sceneLayers)
@@ -61,7 +87,7 @@ export function settingWorld(scene, sceneLayers)
     outsideLayer.setCollisionBetween(1, 500);*/
 }
 
-export function putTilesOnLayers(sceneLayers, map_matrix) {
+export function putTilesOnLayers(sceneLayers, map_matrix, debugHallMap, sectorMap) {
     let randomTileNumer = 0;
         for (let x = 0; x < sectorTileSize * width; x++)
         {
@@ -99,6 +125,22 @@ export function putTilesOnLayers(sceneLayers, map_matrix) {
             }
         }
 
+        if (debugHallMapWillBeCreated) {
+            for (let x = 0; x < sectorTileSize * width; x++) {
+                for (let y = 0; y < sectorTileSize * height; y++) {
+                    if (debugHallMap[x][y] == 5) {
+                        sceneLayers.hallLayer.putTileAt(STREET_TILESET_MAPPING.HALL[0], x, y);
+                    }                
+                }
+            }
+        }
+
+        if (debugArrowsWillBeDrawn) {
+            putArrowsOnDebugArrowLayer(sceneLayers.debugArrowLayer, sectorMap);
+        }
+
+
+        
         /*for (let x = 1; x < width - 1; x++)
         {
             for (let y = 1; y < height - 1; y++)
@@ -113,6 +155,91 @@ export function putTilesOnLayers(sceneLayers, map_matrix) {
             }
         }*/
 }
+
+function putArrowsOnDebugArrowLayer(debugArrowLayer, sectorMap) {
+    for (let sx = 0; sx < sectorMap.length; sx++) {
+        for (let sy = 0; sy < sectorMap[0].length; sy++) {
+            if (sectorMap[sx][sy] != null) {
+                for (let name in sectorMap[sx][sy].directions) {                    
+                    if (sectorMap[sx][sy].directions[name]) {
+                        let arrowParameters = ARROW_TILESET_MAPPING[name];
+                        let baseX = sx * sectorTileSize + arrowParameters.dx;                        
+                        let baseY = sy * sectorTileSize + arrowParameters.dy;
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[0], baseX, baseY);
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[1], baseX + 1, baseY);
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[2], baseX, baseY + 1);
+                        debugArrowLayer.putTileAt(arrowParameters.tileNumbers[3], baseX + 1, baseY + 1);
+                    }
+                }
+            }            
+        }
+    }
+}
+
+export function createNPCCars(scene, sectorMap) {
+    for (let x = 0; x < width; x += npcDistance) {
+        for (let y = 0; y < height; y++) {
+            if (sectorMap[x][y] != null) {                
+                if (sectorMap[x + 1][y] != null && sectorMap[x][y].directionsCoinside(sectorMap[x + 1][y])) {
+                    let sector;
+                    let npcX;
+                    let npcY = sectorMap[x + 1][y].center.y;
+                    let unitDirectionVector; 
+                    if (sectorMap[x + 1][y].directions.right) {      
+                        npcX = sectorMap[x + 1][y].center.x - sectorTileSize * tileSize / 2;  
+                        unitDirectionVector = new Vector(1, 0);    
+                        sector = sectorMap[x + 1][y];
+                    }
+
+                    if (sectorMap[x][y].directions.left) {      
+                        npcX = sectorMap[x][y].center.x + sectorTileSize * tileSize / 2;   
+                        unitDirectionVector = new Vector(-1, 0);    
+                        sector = sectorMap[x][y];     
+                    }
+                    
+                    addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap);  
+                }               
+            }
+        }    
+    }
+
+    for (let y = 0; y < height; y += npcDistance) {
+        for (let x = 0; x < width; x++)  {
+            if (sectorMap[x][y] != null) {   
+                if (sectorMap[x][y + 1] != null && sectorMap[x][y].directionsCoinside(sectorMap[x][y + 1])) {
+                    let sector;
+                    let npcX = sectorMap[x][y + 1].center.x;
+                    let npcY;
+                    let unitDirectionVector; 
+                    if (sectorMap[x][y + 1].directions.down) {      
+                        npcY = sectorMap[x][y + 1].center.y - sectorTileSize * tileSize / 2;  
+                        unitDirectionVector = new Vector(0, 1);   
+                        sector = sectorMap[x][y + 1];    
+                    }
+
+                    if (sectorMap[x][y].directions.up) {      
+                        npcY = sectorMap[x][y].center.y + sectorTileSize * tileSize / 2;   
+                        unitDirectionVector = new Vector(0, -1); 
+                        sector = sectorMap[x][y];         
+                    }
+                    
+                    addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap);                                     
+                }                             
+            }
+        }    
+    }
+}
+
+function addNPC(scene, npcX, npcY, unitDirectionVector, sector, sectorMap) {    
+    let npcCar = scene.characterFactory.buildCharacter("npcCar", npcX, npcY, 
+        { 
+            unitDirectionVector : unitDirectionVector,
+            targetSector : sector,
+            sectorMap : sectorMap
+        });       
+    scene.gameObjects.push(npcCar);
+}
+    
 
 export function createPlayerCar(scene, roomsArray) {
     let randomNumber = rand(0, roomsArray.length - 1);   
@@ -140,5 +267,5 @@ export function addDebugGraphicsFor(scene) {
             .graphics()
             .setAlpha(0.75)
             .setDepth(20);
-    });
+    });    
 }
