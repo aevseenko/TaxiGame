@@ -15,8 +15,8 @@ export default class Car extends Phaser.Physics.Arcade.Sprite{
         this.downVector = new Vector(0, 1);        */
         
 
-        this.unitDirectionVector = unitDirectionVector;
-        this.angle = this.unitDirectionVector.angleInDegrees();
+        this.unitDirectionVector = unitDirectionVector;         // original
+        this.angle = this.unitDirectionVector.angleInDegrees(); // original
 
         /*this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);

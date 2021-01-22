@@ -3,10 +3,11 @@ import Mine from "./mine";
 import Vector from "../accessoryClasses/vector.js"
 import Car from "./car";
 
-export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
-//export default class PlayerCar extends Car {
+//export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
+export default class PlayerCar extends Car {
     constructor(scene, x, y, name, frame, params, unitDirectionVector) {
-        super(scene, x, y, name, frame);
+        //super(scene, x, y, name, frame); // original
+        super(scene, x, y, name, frame, unitDirectionVector);
         scene.physics.world.enable(this);
         scene.add.existing(this);  
 
@@ -21,8 +22,8 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         this.rightVector = new Vector(1, 0);
         this.downVector = new Vector(0, 1);        
         
-        this.unitDirectionVector = unitDirectionVector;
-        this.angle = this.unitDirectionVector.angleInDegrees();
+        //this.unitDirectionVector = unitDirectionVector;
+        //this.angle = this.unitDirectionVector.angleInDegrees();
 
         this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
