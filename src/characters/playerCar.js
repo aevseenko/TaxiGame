@@ -1,10 +1,13 @@
 //import { PhaserMath } from "phaser";
 import Mine from "./mine";
 import Vector from "../accessoryClasses/vector.js"
+import Car from "./car";
 
-export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
+//export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
+export default class PlayerCar extends Car {
     constructor(scene, x, y, name, frame, params, unitDirectionVector) {
-        super(scene, x, y, name, frame);
+        //super(scene, x, y, name, frame); // original
+        super(scene, x, y, name, frame, unitDirectionVector);
         scene.physics.world.enable(this);
         scene.add.existing(this);
 
@@ -18,10 +21,9 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         this.upVector = new Vector(0, -1);
         this.rightVector = new Vector(1, 0);
         this.downVector = new Vector(0, 1);
-
-        this.unitDirectionVector = unitDirectionVector;
-        this.angle = this.unitDirectionVector.angleInDegrees();
-
+        //????????????????????????????
+        //this.unitDirectionVector = unitDirectionVector;
+        //this.angle = this.unitDirectionVector.angleInDegrees();
         this.buttonLeft = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.buttonUp = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
         this.buttonRight = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
@@ -31,8 +33,6 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         this.gearDown = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         this.gearUpIsReadyForSwitch = true;
         this.gearDownIsReadyForSwitch = true;
-
-        this.abilities  = params.abilities || [];
         this.gearCount = 0;
     }
 
@@ -46,9 +46,6 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
     update() {
         const body = this.body;
 
-
-        //this.engineGear1Sound.play();
-        //this.engineGear1Sound.pause();
         if (!this.engineGear1Sound.isPlaying) // вооот так норм
         {
             this.engineGear1Sound.play();
@@ -95,11 +92,9 @@ export default class PlayerCar extends Phaser.Physics.Arcade.Sprite{
         //this.currentSpeed = this.updateSpeed(); // works
         //this.currentSpeed = this.updateSpeed(gearCount);
         this.currentSpeed = this.updateSpeed();
-
-        //console.log("gearCount = " + this.gearCount);
-
         let cursorResultVector = this.updateDirection();
         let crossZCoordinate = cursorResultVector.crossZCoordinate(this.unitDirectionVector);
+
         let rotationDirection = -1;
         if (this.currentSpeed < 0) {
             rotationDirection = 1;
